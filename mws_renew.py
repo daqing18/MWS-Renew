@@ -11,25 +11,47 @@ import os, sys, time, json, requests, subprocess
 from datetime import datetime, timezone, timedelta
 
 # ============================================================
-# 📌 配置区域 (必须修改)
+# 📌 配置区域 (一般不需要修改)
 # ============================================================
 API_BASE = "https://cloud-api.puratya.com"
-# 从环境变量读取 Bot ID 列表（逗号分隔），默认当前 Bot ID
-BOT_IDS_RAW = os.environ.get("BOT_IDS", "9447")
-BOT_IDS = [int(x.strip()) for x in BOT_IDS_RAW.split(",") if x.strip()]
 # ============================================================
 
-# 环境变量（与 Secrets 对应）
-SESSION_TOKEN = os.environ.get("SESSION_TOKEN") or ""
+# 全局配置
 GH_TOKEN      = os.environ.get("GH_TOKEN") or ""
 TG_CHAT_ID    = os.environ.get("TG_CHAT_ID") or ""
 TG_BOT_TOKEN  = os.environ.get("TG_BOT_TOKEN") or ""
 
-if not SESSION_TOKEN:
-    print("❌ 未配置 SESSION_TOKEN，脚本终止。")
+# ---------- 多账号检测 ----------
+# 账号1: SESSION_TOKEN_1 + BOT_IDS_1
+# 账号2: SESSION_TOKEN_2 + BOT_IDS_2
+# ...
+# 向下兼容: SESSION_TOKEN + BOT_IDS（单账号）
+ACCOUNTS = []
+for i in range(1, 100):
+    token = os.environ.get(f"SESSION_TOKEN_{i}")
+    if token:
+        bot_ids_raw = os.environ.get(f"BOT_IDS_{i}", "9447")
+        bot_ids = [int(x.strip()) for x in bot_ids_raw.split(",") if x.strip()]
+        ACCOUNTS.append({"token": token, "bot_ids": bot_ids, "label": f"账号{i}"})
+    else:
+        break
+
+if not ACCOUNTS:
+    legacy_token = os.environ.get("SESSION_TOKEN") or ""
+    if legacy_token:
+        bot_ids_raw = os.environ.get("BOT_IDS", "9447")
+        bot_ids = [int(x.strip()) for x in bot_ids_raw.split(",") if x.strip()]
+        ACCOUNTS.append({"token": legacy_token, "bot_ids": bot_ids, "label": "默认账号"})
+
+if not ACCOUNTS:
+    print("❌ 未配置任何 SESSION_TOKEN，脚本终止。")
+    print("   单账号: 设置 SESSION_TOKEN")
+    print("   多账号: 设置 SESSION_TOKEN_1, SESSION_TOKEN_2, ...")
     sys.exit(1)
 
-AUTH_HEADER = {"Authorization": f"Bearer {SESSION_TOKEN}"}
+print(f"📋 检测到 {len(ACCOUNTS)} 个账号: {', '.join(a['label'] for a in ACCOUNTS)}")
+
+AUTH_HEADER = {}  # 占位，main() 循环中赋值
 
 # ------------------------------------------------------------
 # 辅助函数
