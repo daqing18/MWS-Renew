@@ -70,14 +70,21 @@ curl -H "Authorization: Bearer YOUR_TOKEN" https://cloud-api.puratya.com/auth/me
 
 ### 脚本内配置（`mws_renew.py`）
 
-在脚本开头的 **配置区域** 修改：
-
 ```python
 API_BASE = "https://cloud-api.puratya.com"     # API 地址，一般不动
-BOT_IDS = [9329]                                 # 要续期的 Bot ID 列表
 ```
 
-> 多个 Bot：`BOT_IDS = [9329, 9330, 9331]`
+### GitHub Actions 变量（推荐）
+
+**BOT_IDS** 可通过 GitHub **Actions 变量**（Variables）配置，无需改代码：
+
+1. 仓库 → **Settings** → **Secrets and variables** → **Actions**
+2. 切到 **Variables** 标签 → **New repository variable**
+3. **Name**: `BOT_IDS`
+4. **Value**: 你的 Bot ID（多个用逗号分隔，如 `9447,9448,9449`）
+5. 点击 **Add variable**
+
+> 没设置变量时会使用默认值 `9447`（即脚本中写的默认值）。
 
 ## 部署方式
 
