@@ -30,8 +30,11 @@ ACCOUNTS = []
 for i in range(1, 100):
     token = os.environ.get(f"SESSION_TOKEN_{i}")
     if token:
-        bot_ids_raw = os.environ.get(f"BOT_IDS_{i}", "9447")
+        bot_ids_raw = os.environ.get(f"BOT_IDS_{i}") or "9447"
         bot_ids = [int(x.strip()) for x in bot_ids_raw.split(",") if x.strip()]
+        if not bot_ids:
+            print(f"⚠️ 账号{i} BOT_IDS 配置为空，使用默认值 9447")
+            bot_ids = [9447]
         ACCOUNTS.append({"token": token, "bot_ids": bot_ids, "label": f"账号{i}"})
     else:
         break
@@ -39,8 +42,10 @@ for i in range(1, 100):
 if not ACCOUNTS:
     legacy_token = os.environ.get("SESSION_TOKEN") or ""
     if legacy_token:
-        bot_ids_raw = os.environ.get("BOT_IDS", "9447")
+        bot_ids_raw = os.environ.get("BOT_IDS") or "9447"
         bot_ids = [int(x.strip()) for x in bot_ids_raw.split(",") if x.strip()]
+        if not bot_ids:
+            bot_ids = [9447]
         ACCOUNTS.append({"token": legacy_token, "bot_ids": bot_ids, "label": "默认账号"})
 
 if not ACCOUNTS:
