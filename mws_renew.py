@@ -14,7 +14,7 @@ from datetime import datetime, timezone, timedelta
 # 📌 配置区域 (必须修改)
 # ============================================================
 API_BASE = "https://cloud-api.puratya.com"
-BOT_IDS = [9329]  # 要续期的 Bot ID 列表
+BOT_IDS = [9447]  # 要续期的 Bot ID 列表
 # ============================================================
 
 # 环境变量（与 Secrets 对应）
