@@ -1,0 +1,78 @@
+# ============================================================
+# 模板名称：MWS Auto Renew
+# 描述：定时或手动调用 MWS API 续期 Bot。
+# 归类：TOKEN 类型（基于模板 1 改造）
+#
+# 使用前请修改：
+#   1. 仓库地址：your/repo → 你的仓库
+#   2. BOT_IDS 列表（在 mws_renew.py 中修改）
+#   3. cron 时间（UTC）：目前 0 10 * * * = 北京时间 18:00
+#   4. secrets 列表：SESSION_TOKEN, GH_TOKEN, TG_BOT_TOKEN, TG_CHAT_ID
+# ============================================================
+
+name: MWS Auto Renew
+
+on:
+  schedule:
+    # UTC 时间，北京时间 = UTC + 8
+    - cron: '0 10 * * *'
+  workflow_dispatch:
+
+jobs:
+  Renew:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+
+    # ---------- 可配置变量（集中管理） ----------
+    env:
+      PYTHON_VERSION: '3.12'
+      SCRIPT_PATH: mws_renew.py
+      # -----------------------------------------
+
+    steps:
+      # 1. 检出当前仓库
+      - name: 📥 检出当前仓库
+        uses: actions/checkout@v6
+
+      # 2. 设置 Python 环境
+      - name: ⚙ 设置 Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      # 3. 安装 Python 依赖
+      - name: 🛠️ 安装依赖
+        run: |
+          pip install requests
+
+      # 4. 运行续期脚本
+      - name: 🚀 运行续期脚本
+        env:
+          SESSION_TOKEN: ${{ secrets.SESSION_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: |
+          python3 ${{ env.SCRIPT_PATH }}
+
+      # 5. 清理旧的工作流运行记录（保留最近一次）
+      - name: 🧹 清理旧的运行记录
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          runs=$(gh run list --repo "${{ github.repository }}" \
+                --workflow="${{ github.workflow }}" \
+                --limit=100 \
+                --json databaseId \
+                --jq '.[].databaseId')
+          count=0
+          for run_id in $runs; do
+            count=$((count + 1))
+            if [ $count -gt 1 ]; then
+              echo "删除运行记录: $run_id"
+              gh run delete $run_id --repo "${{ github.repository }}" || true
+            fi
+          done
