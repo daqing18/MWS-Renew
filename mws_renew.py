@@ -14,7 +14,9 @@ from datetime import datetime, timezone, timedelta
 # 📌 配置区域 (必须修改)
 # ============================================================
 API_BASE = "https://cloud-api.puratya.com"
-BOT_IDS = [9447]  # 要续期的 Bot ID 列表
+# 从环境变量读取 Bot ID 列表（逗号分隔），默认当前 Bot ID
+BOT_IDS_RAW = os.environ.get("BOT_IDS", "9447")
+BOT_IDS = [int(x.strip()) for x in BOT_IDS_RAW.split(",") if x.strip()]
 # ============================================================
 
 # 环境变量（与 Secrets 对应）
