@@ -61,12 +61,18 @@ curl -H "Authorization: Bearer YOUR_TOKEN" https://cloud-api.puratya.com/auth/me
 
 ### 环境变量 / GitHub Secrets
 
-| Secret | 必填 | 说明 |
-|--------|------|------|
-| `SESSION_TOKEN` | ✅ | MWS 登录后的 Bearer Token，见上方获取方法 |
-| `GH_TOKEN` | ❌ | GitHub Personal Access Token（用于自动更新 Secrets，可选） |
+| Secret / Variable | 必填 | 说明 |
+|-------------------|------|------|
+| `SESSION_TOKEN_1` | ✅ | 账号1 的 Bearer Token（兼容旧名 `SESSION_TOKEN`） |
+| `BOT_IDS_1` | ✅ | 账号1 的 Bot ID（兼容旧名 `BOT_IDS`，逗号分隔多 Bot） |
+| `SESSION_TOKEN_2` | ❌ | 账号2 的 Bearer Token（多账号时按需添加） |
+| `BOT_IDS_2` | ❌ | 账号2 的 Bot ID（多账号时按需添加） |
+| `SESSION_TOKEN_3` ... | ❌ | 更多账号，编号类推 |
+| `GH_TOKEN` | ❌ | GitHub Personal Access Token（可选） |
 | `TG_BOT_TOKEN` | ❌ | Telegram Bot Token，用于发送通知 |
 | `TG_CHAT_ID` | ❌ | Telegram 聊天 ID，接收通知 |
+
+> **Token 放在 Secrets**（加密），**Bot ID 放在 Variables**（明文，方便修改）
 
 ### 脚本内配置（`mws_renew.py`）
 
@@ -74,17 +80,25 @@ curl -H "Authorization: Bearer YOUR_TOKEN" https://cloud-api.puratya.com/auth/me
 API_BASE = "https://cloud-api.puratya.com"     # API 地址，一般不动
 ```
 
-### GitHub Actions 变量（推荐）
+### 多账号配置
 
-**BOT_IDS** 可通过 GitHub **Actions 变量**（Variables）配置，无需改代码：
+脚本自动检测 `SESSION_TOKEN_1`、`SESSION_TOKEN_2`……有哪个就续哪个。
 
-1. 仓库 → **Settings** → **Secrets and variables** → **Actions**
-2. 切到 **Variables** 标签 → **New repository variable**
-3. **Name**: `BOT_IDS`
-4. **Value**: 你的 Bot ID（多个用逗号分隔，如 `9447,9448,9449`）
-5. 点击 **Add variable**
+**单账号：**
+| 类型 | Name | Value |
+|------|------|-------|
+| Secret | `SESSION_TOKEN_1` | 你的 Bearer Token |
+| Variable | `BOT_IDS_1` | `9447`（或 `9447,9448` 多 Bot） |
 
-> 没设置变量时会使用默认值 `9447`（即脚本中写的默认值）。
+**双账号：**
+| 类型 | Name | Value |
+|------|------|-------|
+| Secret | `SESSION_TOKEN_1` | 账号1 的 Token |
+| Variable | `BOT_IDS_1` | 账号1 的 Bot ID |
+| Secret | `SESSION_TOKEN_2` | 账号2 的 Token |
+| Variable | `BOT_IDS_2` | 账号2 的 Bot ID |
+
+> 向下兼容：旧版 `SESSION_TOKEN` + `BOT_IDS` 仍然有效，等效于 `SESSION_TOKEN_1` + `BOT_IDS_1`。
 
 ## 部署方式
 
@@ -95,9 +109,10 @@ API_BASE = "https://cloud-api.puratya.com"     # API 地址，一般不动
    - 仓库 → **Settings** → **Secrets and variables** → **Actions**
    - 添加 `SESSION_TOKEN`（必填）
    - 可选添加 `TG_BOT_TOKEN` + `TG_CHAT_ID`（Telegram 通知）
-3. **配置 Bot ID**（可选）：
-   - 在仓库 **Settings → Variables** 添加 `BOT_IDS` 变量（如 `9447,9448`）
-   - 或不设置，默认使用脚本中的值
+3. **配置 Secrets 和 Variables**：
+   - **Secrets**（加密）：添加 `SESSION_TOKEN_1`（你的 Bearer Token）
+   - **Variables**（明文）：添加 `BOT_IDS_1`（值如 `9447` 或 `9447,9448`）
+   - 多账号：按顺序添加 `SESSION_TOKEN_2`/`BOT_IDS_2`、`SESSION_TOKEN_3`/`BOT_IDS_3`...
 4. **运行方式**：
    - **自动**：每天 UTC 10:00（北京时间 18:00）自动运行
    - **手动**：仓库 → **Actions** → **MWS Auto Renew** → **Run workflow**
