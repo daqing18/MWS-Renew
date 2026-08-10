@@ -95,8 +95,9 @@ API_BASE = "https://cloud-api.puratya.com"     # API 地址，一般不动
    - 仓库 → **Settings** → **Secrets and variables** → **Actions**
    - 添加 `SESSION_TOKEN`（必填）
    - 可选添加 `TG_BOT_TOKEN` + `TG_CHAT_ID`（Telegram 通知）
-3. **修改 Bot ID**（可选）：
-   - 编辑 `mws_renew.py` 中的 `BOT_IDS` 列表
+3. **配置 Bot ID**（可选）：
+   - 在仓库 **Settings → Variables** 添加 `BOT_IDS` 变量（如 `9447,9448`）
+   - 或不设置，默认使用脚本中的值
 4. **运行方式**：
    - **自动**：每天 UTC 10:00（北京时间 18:00）自动运行
    - **手动**：仓库 → **Actions** → **MWS Auto Renew** → **Run workflow**
