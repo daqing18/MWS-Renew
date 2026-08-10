@@ -29,7 +29,13 @@ jobs:
     env:
       PYTHON_VERSION: '3.12'
       SCRIPT_PATH: mws_renew.py
-      BOT_IDS: ${{ vars.BOT_IDS || '9447' }}
+      # ---- 账号1（必填） ----
+      SESSION_TOKEN_1: ${{ secrets.SESSION_TOKEN_1 || secrets.SESSION_TOKEN }}
+      BOT_IDS_1: ${{ vars.BOT_IDS_1 || vars.BOT_IDS || '9447' }}
+      # ---- 账号2（可选，不需要就删掉） ----
+      SESSION_TOKEN_2: ${{ secrets.SESSION_TOKEN_2 }}
+      BOT_IDS_2: ${{ vars.BOT_IDS_2 }}
+      # ---- 账号3+（按需添加，格式同上） ----
       # -----------------------------------------
 
     steps:
