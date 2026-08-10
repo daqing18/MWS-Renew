@@ -148,49 +148,57 @@ def renew_bot(bot_id: int) -> dict:
 # 主入口
 # ------------------------------------------------------------
 def main():
+    global AUTH_HEADER
     print("=" * 40)
     print("  MWS Bot 自动续期")
     print("=" * 40)
 
-    try:
-        user = get_user_info()
-    except Exception as e:
-        print(f"❌ 获取用户信息失败: {e}")
-        send_telegram(f"❌ MWS 续期失败\n无法获取用户信息: {e}")
-        sys.exit(1)
+    all_results = []
+    for acc in ACCOUNTS:
+        label = acc["label"]
+        AUTH_HEADER = {"Authorization": f"Bearer {acc['token']}"}
+        print(f"\n{'=' * 40}")
+        print(f"  {label}")
+        print(f"{'=' * 40}")
 
-    results = []
-    for bot_id in BOT_IDS:
         try:
-            bot_before = get_bot_info(bot_id)
-            result = renew_bot(bot_id)
-            bot_after = get_bot_info(bot_id)
-
-            timer = result.get("timer", {})
-            results.append({
-                "name": bot_before.get("name", f"Bot-{bot_id}"),
-                "status": "✅ 续期成功",
-                "remaining": f"{timer.get('remaining_hours', 0)}h",
-                "stop_at": timer.get("stop_at", "未知"),
-            })
+            user = get_user_info()
         except Exception as e:
-            print(f"❌ Bot {bot_id} 续期失败: {e}")
-            results.append({
-                "name": f"Bot-{bot_id}",
-                "status": "❌ 续期失败",
-                "remaining": "N/A",
-                "stop_at": str(e)[:50],
-            })
+            print(f"❌ {label} 获取用户信息失败: {e}")
+            send_telegram(f"❌ MWS {label} 续期失败\n无法获取用户信息: {e}")
+            continue
 
-    # 发送通知
-    for r in results:
-        msg = format_notification(r["status"], r["name"], r["remaining"], r["stop_at"])
-        send_telegram(msg)
+        for bot_id in acc["bot_ids"]:
+            try:
+                bot_before = get_bot_info(bot_id)
+                result = renew_bot(bot_id)
+
+                timer = result.get("timer", {})
+                info = {
+                    "name": bot_before.get("name", f"Bot-{bot_id}"),
+                    "status": "✅ 续期成功",
+                    "remaining": f"{timer.get('remaining_hours', 0)}h",
+                    "stop_at": timer.get("stop_at", "未知"),
+                }
+            except Exception as e:
+                print(f"❌ {label} Bot {bot_id} 续期失败: {e}")
+                info = {
+                    "name": f"Bot-{bot_id}",
+                    "status": "❌ 续期失败",
+                    "remaining": "N/A",
+                    "stop_at": str(e)[:50],
+                }
+            info["label"] = label
+            all_results.append(info)
+
+            msg = format_notification(info["status"], f"[{label}] {info['name']}", info["remaining"], info["stop_at"])
+            send_telegram(msg)
 
     # 汇总
-    success = sum(1 for r in results if "成功" in r["status"])
-    fail = sum(1 for r in results if "失败" in r["status"])
-    print(f"\n📊 汇总: {success} 成功, {fail} 失败, 共 {len(results)} 个 Bot")
+    success = sum(1 for r in all_results if "成功" in r["status"])
+    fail = sum(1 for r in all_results if "失败" in r["status"])
+    accounts = len(set(r["label"] for r in all_results))
+    print(f"\n📊 汇总: {accounts} 个账号, {success} 成功, {fail} 失败, 共 {len(all_results)} 个 Bot")
 
 if __name__ == "__main__":
     main()
