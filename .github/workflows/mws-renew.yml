@@ -29,6 +29,7 @@ jobs:
     env:
       PYTHON_VERSION: '3.12'
       SCRIPT_PATH: mws_renew.py
+      BOT_IDS: ${{ vars.BOT_IDS || '9447' }}
       # -----------------------------------------
 
     steps:
