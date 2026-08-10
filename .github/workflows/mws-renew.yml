@@ -34,7 +34,7 @@ jobs:
       BOT_IDS_1: ${{ vars.BOT_IDS_1 || vars.BOT_IDS || '9447' }}
       # ---- 账号2（可选，不需要就删掉） ----
       SESSION_TOKEN_2: ${{ secrets.SESSION_TOKEN_2 }}
-      BOT_IDS_2: ${{ vars.BOT_IDS_2 }}
+      BOT_IDS_2: ${{ vars.BOT_IDS_2 || '9467' }}
       # ---- 账号3+（按需添加，格式同上） ----
       # -----------------------------------------
 

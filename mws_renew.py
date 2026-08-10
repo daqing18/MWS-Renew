@@ -31,6 +31,7 @@ for i in range(1, 100):
     token = os.environ.get(f"SESSION_TOKEN_{i}")
     if token:
         bot_ids_raw = os.environ.get(f"BOT_IDS_{i}") or "9447"
+        print(f"🐛 [DEBUG] 账号{i}: env BOT_IDS_{i}='{repr(os.environ.get(f'BOT_IDS_{i}'))}', 最终 bot_ids_raw='{bot_ids_raw}'")
         bot_ids = [int(x.strip()) for x in bot_ids_raw.split(",") if x.strip()]
         if not bot_ids:
             print(f"⚠️ 账号{i} BOT_IDS 配置为空，使用默认值 9447")
