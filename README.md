@@ -51,7 +51,7 @@ curl -H "Authorization: Bearer YOUR_TOKEN" https://cloud-api.puratya.com/auth/me
 
 1. 登录 [cloud.puratya.com](https://cloud.puratya.com)
 2. 进入你的 Bot 详情页
-3. 查看 URL：`https://cloud.puratya.com/bots/9329` — 最后的数字 `9329` 就是 Bot ID
+3. 查看 URL：`https://cloud.puratya.com/bots/1234` — 最后的数字 `1234` 就是 Bot ID
 4. 或者直接用 API 查询：
    ```bash
    curl -H "Authorization: Bearer YOUR_TOKEN" https://cloud-api.puratya.com/bots
