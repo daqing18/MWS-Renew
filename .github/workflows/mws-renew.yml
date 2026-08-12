@@ -10,7 +10,7 @@ name: MWS Auto Renew
 on:
   schedule:
     # UTC 时间，北京时间 = UTC + 8
-    - cron: '0 10 * * *'
+    - cron: '0 10 */3 * *'
   workflow_dispatch:
     inputs:
       NEW_TOKEN:
