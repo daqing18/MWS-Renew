@@ -5,7 +5,7 @@
 #       通过 GH_TOKEN 自动更新 SESSION_TOKEN 到 Secrets。
 # ============================================================
 
-name: mws-renew
+name: MWS Auto Renew
 
 on:
   schedule:
