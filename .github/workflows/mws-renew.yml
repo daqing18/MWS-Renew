@@ -1,13 +1,8 @@
 # ============================================================
-# 模板名称：MWS Auto Renew
+# 模板名称：MWS Auto Renew（增强版）
 # 描述：定时或手动调用 MWS API 续期 Bot。
-# 归类：TOKEN 类型（基于模板 1 改造）
-#
-# 使用前请修改：
-#   1. 仓库地址：your/repo → 你的仓库
-#   2. BOT_IDS 列表（在 mws_renew.py 中修改）
-#   3. cron 时间（UTC）：目前 0 10 * * * = 北京时间 18:00
-#   4. secrets 列表：SESSION_TOKEN, GH_TOKEN, TG_BOT_TOKEN, TG_CHAT_ID
+#       支持手动传入新 Token 自动更新 GitHub Secrets。
+#       通过 GH_TOKEN 自动更新 SESSION_TOKEN 到 Secrets。
 # ============================================================
 
 name: MWS Auto Renew
@@ -17,6 +12,11 @@ on:
     # UTC 时间，北京时间 = UTC + 8
     - cron: '0 10 * * *'
   workflow_dispatch:
+    inputs:
+      NEW_TOKEN:
+        description: '新的 SESSION_TOKEN（从浏览器 __Host-mrtcloud_token cookie 复制）'
+        required: false
+        type: string
 
 jobs:
   Renew:
@@ -24,6 +24,7 @@ jobs:
     permissions:
       actions: write
       contents: read
+      secrets: write   # 允许脚本更新 GitHub Secrets
 
     # ---------- 可配置变量（集中管理） ----------
     env:
@@ -57,10 +58,13 @@ jobs:
       # 4. 运行续期脚本
       - name: 🚀 运行续期脚本
         env:
+          SESSION_TOKEN_1: ${{ secrets.SESSION_TOKEN_1 || secrets.SESSION_TOKEN }}
           SESSION_TOKEN: ${{ secrets.SESSION_TOKEN }}
+          SESSION_TOKEN_2: ${{ secrets.SESSION_TOKEN_2 }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          NEW_TOKEN: ${{ inputs.NEW_TOKEN || '' }}
         run: |
           python3 ${{ env.SCRIPT_PATH }}
 
