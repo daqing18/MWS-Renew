@@ -24,7 +24,8 @@ jobs:
     permissions:
       actions: write
       contents: read
-      secrets: write   # 允许脚本更新 GitHub Secrets
+      # 注意：GitHub Actions 的 permissions 不支持 secrets 键。
+      # Secrets 更新通过 GH_TOKEN（PAT）完成，PAT 有 repo 权限即可。
 
     # ---------- 可配置变量（集中管理） ----------
     env:
