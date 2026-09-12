@@ -14,7 +14,7 @@ from datetime import datetime, timezone, timedelta
 # ============================================================
 # 📌 配置区域 (一般不需要修改)
 # ============================================================
-API_BASE = "https://cloud.m-ws.cc"
+API_BASE = "https://cloud-api.puratya.com"
 # Token 剩余天数低于此值时发提醒（默认 7 天）
 TOKEN_WARN_DAYS = int(os.environ.get("TOKEN_WARN_DAYS") or "7")
 # ============================================================
