@@ -14,7 +14,7 @@ from datetime import datetime, timezone, timedelta
 # ============================================================
 # 📌 配置区域 (一般不需要修改)
 # ============================================================
-API_BASE = "https://cloud-api.puratya.com"
+API_BASE = "https://cloud.m-ws.cc"
 # Token 剩余天数低于此值时发提醒（默认 7 天）
 TOKEN_WARN_DAYS = int(os.environ.get("TOKEN_WARN_DAYS") or "7")
 # ============================================================
@@ -35,12 +35,12 @@ ACCOUNTS = []
 for i in range(1, 100):
     token = os.environ.get(f"SESSION_TOKEN_{i}")
     if token:
-        bot_ids_raw = os.environ.get(f"BOT_IDS_{i}") or "9447"
+        bot_ids_raw = os.environ.get(f"BOT_IDS_{i}") or "11647"
         print(f"🐛 [DEBUG] 账号{i}: env BOT_IDS_{i}='{repr(os.environ.get(f'BOT_IDS_{i}'))}', 最终 bot_ids_raw='{bot_ids_raw}'")
         bot_ids = [int(x.strip()) for x in bot_ids_raw.split(",") if x.strip()]
         if not bot_ids:
-            print(f"⚠️ 账号{i} BOT_IDS 配置为空，使用默认值 9447")
-            bot_ids = [9447]
+            print(f"⚠️ 账号{i} BOT_IDS 配置为空，使用默认值 11647")
+            bot_ids = [11647]
         ACCOUNTS.append({"token": token, "bot_ids": bot_ids, "label": f"账号{i}"})
     else:
         break
@@ -48,10 +48,10 @@ for i in range(1, 100):
 if not ACCOUNTS:
     legacy_token = os.environ.get("SESSION_TOKEN") or ""
     if legacy_token:
-        bot_ids_raw = os.environ.get("BOT_IDS") or "9447"
+        bot_ids_raw = os.environ.get("BOT_IDS") or "11647"
         bot_ids = [int(x.strip()) for x in bot_ids_raw.split(",") if x.strip()]
         if not bot_ids:
-            bot_ids = [9447]
+            bot_ids = [11647]
         ACCOUNTS.append({"token": legacy_token, "bot_ids": bot_ids, "label": "默认账号"})
 
 if not ACCOUNTS:
@@ -227,7 +227,7 @@ def handle_token_lifecycle(existing_token, secret_name):
             f"❌ MWS Token 已过期\n\n"
             f"到期时间: {exp_str}\n"
             f"Secret: `{secret_name}`\n\n"
-            f"请重新登录 cloud.puratya.com，从浏览器 Cookie "
+            f"请重新登录 cloud.m-ws.cc，从浏览器 Cookie "
             f"`__Host-mrtcloud_token` 复制新值，然后手动触发 "
             f"MWS Auto Renew workflow 并填入 NEW_TOKEN\n\n"
             f"MWS Auto Renewal"
@@ -241,7 +241,7 @@ def handle_token_lifecycle(existing_token, secret_name):
             f"剩余: {remain_days:.1f} 天\n"
             f"到期时间: {exp_str}\n"
             f"Secret: `{secret_name}`\n\n"
-            f"请重新登录 cloud.puratya.com，从浏览器 Cookie "
+            f"请重新登录 cloud.m-ws.cc，从浏览器 Cookie "
             f"`__Host-mrtcloud_token` 复制新值，然后手动触发 "
             f"MWS Auto Renew workflow 并填入 NEW_TOKEN\n\n"
             f"MWS Auto Renewal"
