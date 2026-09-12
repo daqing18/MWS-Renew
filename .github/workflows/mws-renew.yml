@@ -10,7 +10,7 @@ name: MWS Auto Renew
 on:
   schedule:
     # UTC 时间，北京时间 = UTC + 8
-    - cron: '0 10 */3 * *'
+    - cron: '0 10 * * *'
   workflow_dispatch:
     inputs:
       NEW_TOKEN:
@@ -33,7 +33,7 @@ jobs:
       SCRIPT_PATH: mws_renew.py
       # ---- 账号1（必填） ----
       SESSION_TOKEN_1: ${{ secrets.SESSION_TOKEN_1 || secrets.SESSION_TOKEN }}
-      BOT_IDS_1: ${{ vars.BOT_IDS_1 || vars.BOT_IDS || '9447' }}
+      BOT_IDS_1: '11647'
       # ---- 账号2（可选，不需要就删掉） ----
       SESSION_TOKEN_2: ${{ secrets.SESSION_TOKEN_2 }}
       BOT_IDS_2: ${{ vars.BOT_IDS_2 || '9467' }}
