@@ -51,10 +51,10 @@ def _notify_gateway(title, content, level, details, source):
 
 def _notify_telegram(title, content, level):
     if not (TG_BOT_TOKEN and TG_CHAT_ID):
-        print("[i] ??????????")
+        print("[i] Telegram 未配置，跳过通知")
         return {"messageId": "not-configured"}
 
-    prefix = {"success": "?", "partial": "??", "failed": "?"}.get(level, "??")
+    prefix = {"success": "✅", "partial": "⚠️", "failed": "❌"}.get(level, "⚠️")
     text = "{}\n{}\n\n{}".format(prefix, title, content)
     payload = urllib.parse.urlencode({
         "chat_id": TG_CHAT_ID,
@@ -69,7 +69,7 @@ def _notify_telegram(title, content, level):
     )
     with urllib.request.urlopen(req, timeout=10) as resp:
         result = json.loads(resp.read().decode("utf-8"))
-    print("[?] Telegram ?????")
+    print("[✓] Telegram 发送成功")
     return result
 
 
@@ -83,8 +83,8 @@ if __name__ == "__main__":
     print(
         json.dumps(
             notify(
-                "MWS ????",
-                "??????",
+                "MWS 通知测试",
+                "测试通知内容",
                 level="partial",
                 details={
                     "total": 5,
@@ -93,7 +93,7 @@ if __name__ == "__main__":
                     "details": [
                         {"id": "bot_001", "name": "Bot A", "status": "success"},
                         {"id": "bot_002", "name": "Bot B", "status": "failed", "error": "HTTP 403"},
-                        {"id": "site_001", "name": "Site C", "status": "partial", "message": "1/2 ????"},
+                        {"id": "site_001", "name": "Site C", "status": "partial", "message": "1/2 部分成功"},
                     ],
                 },
             ),
