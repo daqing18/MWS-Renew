@@ -195,12 +195,12 @@ def _finish_callback(sess: requests.Session, location: str) -> str:
         browser = p.chromium.launch(headless=True)
         context = browser.new_context(user_agent=UA)
         if state_cookie:
-            # 用 url 而不用 domain：__Host- 前缀要求 host-only（无 Domain 属性）
+            # 只传 url（不传 domain/path）：Playwright 会从 url 派生 host-only 的
+            # domain+path，正好满足 __Host- 前缀要求；同时传 url 和 path 会报错。
             context.add_cookies([{
                 "name": OAUTH_STATE_COOKIE,
                 "value": state_cookie,
                 "url": AUTH_HOST + "/",
-                "path": "/",
                 "secure": True,
             }])
         page = context.new_page()
