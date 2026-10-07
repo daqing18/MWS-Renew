@@ -179,21 +179,51 @@ def _set_cookie_blob(resp) -> str:
 
 
 def _finish_callback(sess: requests.Session, location: str) -> str:
-    """打开 Discord 返回的 callback，读取新的 MWS JWT。"""
-    resp = sess.get(location, allow_redirects=False, timeout=30)
-    token = _token_from_cookies(sess.cookies) or extract_mws_token(_set_cookie_blob(resp))
+    """用真浏览器打开 Discord 返回的 callback，等待 MWS 种下 JWT。
+
+    背景：MWS 把登录最后一步改成了前端 JS（/auth/success 只显示"処理中..."），
+    纯 requests 拿不到 cookie；且 __Host- 前缀锁主机名，requests 的 cookiejar
+    在某些环境还会直接丢弃这类 cookie。真浏览器走完整流程最稳。
+    """
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        raise RuntimeError("需要 playwright 才能完成 OAuth 回调：pip install playwright && python -m playwright install chromium")
+
+    state_cookie = sess.cookies.get(OAUTH_STATE_COOKIE) or ""
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context(user_agent=UA)
+        if state_cookie:
+            # 用 url 而不用 domain：__Host- 前缀要求 host-only（无 Domain 属性）
+            context.add_cookies([{
+                "name": OAUTH_STATE_COOKIE,
+                "value": state_cookie,
+                "url": AUTH_HOST + "/",
+                "path": "/",
+                "secure": True,
+            }])
+        page = context.new_page()
+        try:
+            page.goto(location, wait_until="domcontentloaded", timeout=30000)
+        except Exception as e:
+            browser.close()
+            raise RuntimeError("打开 OAuth 回调页失败: {}".format(e))
+        token = ""
+        deadline = time.time() + 30
+        while time.time() < deadline:
+            for c in context.cookies():
+                if c.get("name") == COOKIE_NAME and c.get("value"):
+                    token = c["value"]
+                    break
+            if token:
+                break
+            time.sleep(1)
+        final_url = page.url
+        browser.close()
     if not token:
-        # 再跟一跳（有时先 302 到前端）
-        loc = resp.headers.get("Location") or ""
-        if loc:
-            nxt = urllib.parse.urljoin(location, loc)
-            resp2 = sess.get(nxt, allow_redirects=False, timeout=30)
-            token = _token_from_cookies(sess.cookies) or extract_mws_token(
-                _set_cookie_blob(resp2)
-            )
-    if not token:
-        loc = resp.headers.get("Location") or ""
-        raise RuntimeError("OAuth 回调没有种下 {}（停留 {}）".format(COOKIE_NAME, loc or resp.status_code))
+        raise RuntimeError("OAuth 回调没有种下 {}（30s 内未出现，停留 {}）".format(COOKIE_NAME, final_url))
+    print("[✓] 浏览器回调拿到新的 MWS_TOKEN")
     return token
 
 

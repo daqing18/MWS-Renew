@@ -47,7 +47,7 @@ POST /api/sites/{id}/renew    # 网站续期
 | `NOTIFY_URL`     | 通知网关上报地址（以 `/api/notify` 结尾） | ✅   |
 | `NOTIFY_TOKEN`   | 网关里该项目分配的独立 Key           | ✅   |
 
-> `DISCORD_TOKEN` + `GH_TOKEN` 配齐后，和 [bothosting](https://github.com/2Bdou/bothosting) 一样：JWT 过期（或剩余不到 7 天）时用 Discord 重新登录，并强制写回 `MWS_TOKEN`。只配 `MWS_TOKEN` 也能续期，但大约一个月后还是要手动抓一次。
+> `DISCORD_TOKEN` + `GH_TOKEN` 配齐后，和 [bothosting](https://github.com/2Bdou/bothosting) 一样：JWT 过期（或剩余不到 7 天）时用 Discord 重新登录，并强制写回 `MWS_TOKEN`。只配 `MWS_TOKEN` 也能续期，但大约一天后还是要手动抓一次。
 >
 > Actions 自带的 `GITHUB_TOKEN` **不能**改 Secrets，必须另建 classic PAT，Secret 名称就叫 `GH_TOKEN`。
 
@@ -74,7 +74,7 @@ POST /api/sites/{id}/renew    # 网站续期
 
 ## ⚠️ Token 有效期 / 自动换票
 
-`MWS_TOKEN` 是个 JWT，**约 26 天后过期**。MWS 本身没有 refresh 接口（登录只有 Discord OAuth），所以不能「续 JWT」，只能重新登录拿一张新的。
+`MWS_TOKEN` 是个 JWT，**约 12 小时后过期（2026-10 实测）**。MWS 本身没有 refresh 接口（登录只有 Discord OAuth），所以不能「续 JWT」，只能重新登录拿一张新的。
 
 自动换票（和 bothosting 同一套路）：
 
